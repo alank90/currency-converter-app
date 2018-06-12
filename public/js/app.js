@@ -2,6 +2,7 @@ window.addEventListener("load", () => {
   const el = $("#app");
 
   // Compile Handlebar Templates
+  // Note: Handlebars.compile() method returns a function.
   const errorTemplate = Handlebars.compile($("#error-template").html());
   const ratesTemplate = Handlebars.compile($("#ratesTemplate").html());
   const exchangeTemplate = Handlebars.compile($("#exchange-template").html());
