@@ -1,6 +1,8 @@
 window.addEventListener("load", () => {
   const el = $("#app");
 
+  // app.js front-end app running in browser
+  
   // =========================================================== //
   // Compile Handlebar Templates
   // Note: Handlebars.compile returns a function. i.e. to use
@@ -39,37 +41,43 @@ window.addEventListener("load", () => {
   // =========================================================== //
   // ========= Front-End vanilla-router Routes ================= //
   // =========================================================== //
-  // Instantiate api handler
+  // Instantiate api handler to communicate with our Express(proxy) server
   const api = axios.create({
     baseURL: "http://localhost:3000/api",
     timeout: 5000
   });
 
-  // Display Error Banner
+  // Display Error Banner. Used in catch clause further down.
   const showError = error => {
     const { title, message } = error.response.data;
     const html = errorTemplate({ color: "red", title, message });
     el.html(html);
   };
 
-  // Display Latest Currency Rates
+   /* === Display Latest Currency Rates =========================
+   Get rates data from the localhost:3000/api/rates Express
+  endpoint and pass it to the handlebars rates-template to display 
+  the information. 
+  ============================================================= */
   /* jshint ignore:start */
   router.add("/", async () => {
-    // Display loader first
+    // Display loader Animation from SemanticUI first
     let html = ratesTemplate();
     el.html(html);
     try {
-      // Load Currency Rates
+      // Load Currency Rates from Express proxy via Axios client
       const response = await api.get("/rates");
       const { base, date, rates } = response.data;
-      // Display Rates Table
+      console.log(response.data);
+
+      // Display Rates Table via handlebars template
       html = ratesTemplate({ base, date, rates });
       el.html(html);
     } catch (error) {
-      showError(error);
+        showError(error);
     } finally {
-      // Remove loader status
-      $(".loading").removeClass("loading");
+      // Remove loader status. Kills the SemanticUI Loader animation
+        $(".loading").removeClass("loading");
     }
   });
   /* jshint ignore:end */

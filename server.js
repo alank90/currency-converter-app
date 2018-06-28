@@ -1,7 +1,9 @@
+// server.js Express server running in node
+
 require("dotenv").config(); // read the .env file
 const express = require("express");
-const { getRates } = require("./lib/fixer-service");
-
+const { getRates, getSymbols } = require("./lib/fixer-service");
+const  { convertCurrency } = require('./lib/free-currenct-service');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -66,10 +68,10 @@ app.listen(port, () => {
 });
 
 /* jshint ignore:start */
-const test = async() => {
+/* const test = async() => {
     const data = await getRates();
     console.log(data);
-}
+} */
 /* jshint ignore:end */
 
-test();
+/* test(); */
