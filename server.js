@@ -3,7 +3,7 @@
 require("dotenv").config(); // read the .env file
 const express = require("express");
 const { getRates, getSymbols } = require("./lib/fixer-service");
-const  { convertCurrency } = require('./lib/free-currenct-service');
+const  { convertCurrency } = require('./lib/free-currency-service');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -41,7 +41,7 @@ const errorHandler = (err, req, res) => {
 // ==================================================================== //
 
 // ==================================================================== //
-// ================ Fetch Latest Currency Rates ======================= //
+// ============== Fetch Latest Currency Rates Route =================== //
 // ==================================================================== //
 /* jshint ignore:start */
 app.get("/api/rates", async (req, res) => {
@@ -53,13 +53,37 @@ app.get("/api/rates", async (req, res) => {
     errorHandler(error, req, res);
   }
 });
+// ================== Fetch Symbols Route ============================== //
+app.get('/api/symbols', async (req, res) => {
+  try {
+    const data = await getSymbols;
+    res.setHeader('Content-Type', 'application/json');
+    res.send(data);
+  } catch (error) {
+    errorHandler(error, req, res);
+  }
+})
+// ================== End Fetch Symbols ================================ //
+
+// ================== Convert Currency Route =========================== //
+  app.post('/api/convert', async (req, res) => {
+    try {
+      const {from, to } = req.body;
+      const data = await convertCurrency(from, to);
+      res.setHeader('Content-type', 'application/json');
+      res.send(data);
+    } catch (error) {
+        errorHandler(error, req, res);
+    }
+  })
+// ================== End Convert Currency ============================= //
 /* jshint ignore:end */
 // ==================================================================== //
-// ============== End .get fetch Express Route ======================== //
+// ================ End of Express Routes ============================= //
 // ==================================================================== //
 
 // ==================================================================== //
-// ===========  Redirect all traffic to index.html =================== //
+// ===========  Redirect all traffic to index.html ==================== //
 app.use((req, res) => res.sendFile(`${__dirname}/public/index.html`));
 
 // Listen for HTTP requests on port 3000
@@ -68,10 +92,10 @@ app.listen(port, () => {
 });
 
 /* jshint ignore:start */
-/* const test = async() => {
-    const data = await getRates();
+const test = async() => {
+    const data = await convertCurrency('USD', 'KES');
     console.log(data);
-} */
+}
 /* jshint ignore:end */
 
-/* test(); */
+test();
