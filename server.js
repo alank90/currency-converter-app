@@ -92,10 +92,10 @@ app.listen(port, () => {
 });
 
 /* jshint ignore:start */
-const test = async() => {
+/* const test = async() => {
     const data = await convertCurrency('USD', 'KES');
     console.log(data);
-}
+} */
 /* jshint ignore:end */
 
-test();
+/* test(); */
