@@ -2,7 +2,7 @@ window.addEventListener("load", () => {
   const el = $("#app");
 
   // app.js front-end app running in browser
-  
+
   // =========================================================== //
   // Compile Handlebar Templates
   // Note: Handlebars.compile returns a function. i.e. to use
@@ -54,7 +54,7 @@ window.addEventListener("load", () => {
     el.html(html);
   };
 
-   /* === Display Latest Currency Rates =========================
+  /* === Display Latest Currency Rates Route ====================
    Get rates data from the localhost:3000/api/rates Express
   endpoint and pass it to the handlebars rates-template to display 
   the information. 
@@ -74,19 +74,94 @@ window.addEventListener("load", () => {
       html = ratesTemplate({ base, date, rates });
       el.html(html);
     } catch (error) {
-        showError(error);
+      showError(error);
     } finally {
       // Remove loader status. Kills the SemanticUI Loader animation
-        $(".loading").removeClass("loading");
+      $(".loading").removeClass("loading");
     }
   });
   /* jshint ignore:end */
 
-  router.add("/exchange", () => {
+  // =============================================================== //
+  // =======  Helper functions for /exchange route ================= //
+  // Perform POST request, calculate and display conversion results //
+  // ============================================================== //
+
+  /* jshint ignore:start */
+  const getConversionResults = async () => {
+    // Extract the form data
+    const from = $("#from").val();
+    const to = $("#to").val();
+    const amouint = $("#amount").val();
+    // Send post(form) data to Express(proxy) server
+    try {
+      const response = await api.post("/convert", { from, to });
+      const { rate } = response.data;
+      const result = rate * amount;
+      $("#result").html(`${to} ${result}`);
+    } catch (error) {
+      showError(error);
+    } finally {
+      $("#result-segment").removeClass("loading");
+    }
+  };
+  /* jshint ignore:end */
+
+  // Handle Convert Button Click Event
+  const convertRatesHandler = () => {
+    if ($(".ui.form").form("is valid")) {
+      // hide error message
+      $("ui.error.message").hide();
+      // POST to Express Server
+      $("#result-segment").addClass("loading");
+      getConversionResults();
+      // Prevent page from submitting to server
+      return false;
+    }
+  };
+  // ============================================================ //
+  // ========= End Helper Functions ============================= //
+  // ============================================================ //
+
+  // ============================================================ //
+  // ========= vanilla-router Exchange Route ==================== //
+  // ============================================================ //
+  /* jshint ignore:start */
+  router.add('/exchange', async () => {
+    // Display loader first
     let html = exchangeTemplate();
     el.html(html);
-  });
 
+    try {
+      // Load Symbols
+      const response = await api.get('/symbols');
+      const { symbols } = response.data;
+      html = exchangeTemplate({ symbols });
+      el.html(html);
+      $('.loading').removeClass('loading'); // kill loader animation
+      // Validate Form Inputs
+      $('.ui.form').form({
+        fields: {
+          from: 'empty',
+          to: 'empty',
+          amount: 'decimal',
+        },
+      });
+  
+      // Specify Submit Handler
+      $('.submit').click(convertRatesHandler);
+    } catch (error) {
+      showError(error);
+    }
+  })
+  /* jshint ignore:end */
+// ============================================================== //
+// ================ End Exchange Route ========================== //
+// ============================================================== //
+  
+// ============================================================== //
+// ========= vanilla-router Historical Route ==================== //
+// ============================================================== //
   router.add("/historical", () => {
     let html = historicalTemplate();
     el.html(html);
