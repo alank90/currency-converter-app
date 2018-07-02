@@ -68,8 +68,7 @@ window.addEventListener("load", () => {
       // Load Currency Rates from Express proxy via Axios client
       const response = await api.get("/rates");
       const { base, date, rates } = response.data;
-      console.log(response.data);
-
+      
       // Display Rates Table via handlebars template
       html = ratesTemplate({ base, date, rates });
       el.html(html);
@@ -92,7 +91,7 @@ window.addEventListener("load", () => {
     // Extract the form data
     const from = $("#from").val();
     const to = $("#to").val();
-    const amouint = $("#amount").val();
+    const amount = $("#amount").val();
     // Send post(form) data to Express(proxy) server
     try {
       const response = await api.post("/convert", { from, to });
@@ -133,9 +132,10 @@ window.addEventListener("load", () => {
     el.html(html);
 
     try {
-      // Load Symbols
+      // Load Symbols for Dropdown Menus
       const response = await api.get('/symbols');
       const { symbols } = response.data;
+
       html = exchangeTemplate({ symbols });
       el.html(html);
       $('.loading').removeClass('loading'); // kill loader animation

@@ -6,12 +6,19 @@ const { getRates, getSymbols } = require("./lib/fixer-service");
 const  { convertCurrency } = require('./lib/free-currency-service');
 const app = express();
 const port = process.env.PORT || 3000;
+const bodyParser = require('body-parser');
 
 // Set public folder as root
 app.use(express.static("public"));
 
 // Allow front-end access to node_modules folder
 app.use("/scripts", express.static(`${__dirname}/node_modules/`));
+
+// Parse POST data as URL encoded data
+app.use(bodyParser.urlencoded({extended: true,}));
+
+// Parse POST data as JSON
+app.use(bodyParser.json());
 
 // ==================================================================== //
 // ==================  Express Error Handler ========================== //
@@ -63,7 +70,7 @@ app.get("/api/rates", async (req, res) => {
 // ===================================================================== //
 app.get('/api/symbols', async (req, res) => {
   try {
-    const data = await getSymbols;
+    const data = await getSymbols();
     res.setHeader('Content-Type', 'application/json');
     res.send(data);
   } catch (error) {
@@ -81,6 +88,7 @@ app.get('/api/symbols', async (req, res) => {
   app.post('/api/convert', async (req, res) => {
     try {
       const {from, to } = req.body;
+      console.log(req.body);
       const data = await convertCurrency(from, to);
       res.setHeader('Content-type', 'application/json');
       res.send(data);
