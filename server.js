@@ -2,11 +2,20 @@
 
 require("dotenv").config(); // read the .env file
 const express = require("express");
-const { getRates, getSymbols } = require("./lib/fixer-service");
-const  { convertCurrency } = require('./lib/free-currency-service');
+const {
+  getRates,
+  getSymbols,
+  getHistoricalRate
+} = require("./lib/fixer-service");
+const { convertCurrency } = require("./lib/free-currency-service");
 const app = express();
 const port = process.env.PORT || 3000;
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
+
+// ==================================================================== //
+// ==================  Express Middleware ============================= //
+// ==================================================================== //
+// ----------------------------------------------------------------------------- //
 
 // Set public folder as root
 app.use(express.static("public"));
@@ -15,10 +24,15 @@ app.use(express.static("public"));
 app.use("/scripts", express.static(`${__dirname}/node_modules/`));
 
 // Parse POST data as URL encoded data
-app.use(bodyParser.urlencoded({extended: true,}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Parse POST data as JSON
 app.use(bodyParser.json());
+
+// ==================================================================== //
+// ==================  End Middleware ================================= //
+// ==================================================================== //
+// ----------------------------------------------------------------------------- //
 
 // ==================================================================== //
 // ==================  Express Error Handler ========================== //
@@ -47,6 +61,11 @@ const errorHandler = (err, req, res) => {
 // ================= End Express Error Handler ======================== //
 // ==================================================================== //
 
+// ============================================================================= //
+// ================ ***** Express Routes Here ***** ============================ //
+// ============================================================================= //
+// ----------------------------------------------------------------------------- //
+
 // ==================================================================== //
 // ============== Fetch Latest Currency Rates Route =================== //
 // ==================================================================== //
@@ -64,47 +83,67 @@ app.get("/api/rates", async (req, res) => {
 // ============ End Currency Route ==================================== //
 // ==================================================================== //
 
-
 // ===================================================================== //
 // ================== Fetch Symbols Route ============================== //
 // ===================================================================== //
-app.get('/api/symbols', async (req, res) => {
+app.get("/api/symbols", async (req, res) => {
   try {
     const data = await getSymbols();
-    res.setHeader('Content-Type', 'application/json');
+    res.setHeader("Content-Type", "application/json");
     res.send(data);
   } catch (error) {
     errorHandler(error, req, res);
   }
-})
+});
 // ===================================================================== //
 // ================== End Fetch Symbols ================================ //
 // ===================================================================== //
 
-
 // ===================================================================== //
 // ================== Convert Currency Route =========================== //
 // ===================================================================== //
-  app.post('/api/convert', async (req, res) => {
-    try {
-      const {from, to } = req.body;
-      console.log(req.body);
-      const data = await convertCurrency(from, to);
-      res.setHeader('Content-type', 'application/json');
-      res.send(data);
-    } catch (error) {
-        errorHandler(error, req, res);
-    }
-  })
+app.post("/api/convert", async (req, res) => {
+  try {
+    const { from, to } = req.body;
+    const data = await convertCurrency(from, to);
+    res.setHeader("Content-type", "application/json");
+    res.send(data);
+  } catch (error) {
+    errorHandler(error, req, res);
+  }
+});
 /* jshint ignore:end */
 
 // ===================================================================== //
 // ================== End Convert Currency ============================= //
 // ===================================================================== //
 
+// ===================================================================== //
+// ================== Get Historical Data Route ======================== //
+// ===================================================================== //
+
+// Fetch Currency Rates by date
+/* jshint ignore:start */
+app.post("/api/historical", async (req, res) => {
+  try {
+    const { date } = req.body;
+    const data = await getHistoricalRate(date);
+    res.setHeader("Content-type", "application/json");
+    res.send(data);
+  } catch (error) {
+    errorHandler(error, req, res);
+  }
+});
+/* jshint ignore:end */
+
+// ===================================================================== //
+// ================== End Historical Data Route ======================== //
+// ===================================================================== //
+
 // ============================================================================= //
-// ================ End of Express Routes ====================================== //
+// ================ ***** End of Express Routes ***** ========================== //
 // ============================================================================= //
+// ----------------------------------------------------------------------------- //
 
 // ==================================================================== //
 // ===========  Redirect all traffic to index.html ==================== //
@@ -119,7 +158,7 @@ app.listen(port, () => {
 
 /* jshint ignore:start */
 /* const test = async() => {
-    const data = await convertCurrency('USD', 'KES');
+    const data = await getHistoricalRate('2012-07-14');
     console.log(data);
 } */
 /* jshint ignore:end */

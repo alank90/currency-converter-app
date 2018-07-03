@@ -38,9 +38,6 @@ window.addEventListener("load", () => {
   // ========== End Front-End Vanilla-Router Declaration ======= //
   // =========================================================== //
 
-  // =========================================================== //
-  // ========= Front-End vanilla-router Routes ================= //
-  // =========================================================== //
   // Instantiate api handler to communicate with our Express(proxy) server
   const api = axios.create({
     baseURL: "http://localhost:3000/api",
@@ -53,6 +50,11 @@ window.addEventListener("load", () => {
     const html = errorTemplate({ color: "red", title, message });
     el.html(html);
   };
+
+  // =========================================================== //
+  // ========= Front-End vanilla-router Routes ================= //
+  // =========================================================== //
+  // ------------------------------------------------------------------------- //
 
   /* === Display Latest Currency Rates Route ====================
    Get rates data from the localhost:3000/api/rates Express
@@ -68,7 +70,7 @@ window.addEventListener("load", () => {
       // Load Currency Rates from Express proxy via Axios client
       const response = await api.get("/rates");
       const { base, date, rates } = response.data;
-      
+
       // Display Rates Table via handlebars template
       html = ratesTemplate({ base, date, rates });
       el.html(html);
@@ -126,49 +128,104 @@ window.addEventListener("load", () => {
   // ========= vanilla-router Exchange Route ==================== //
   // ============================================================ //
   /* jshint ignore:start */
-  router.add('/exchange', async () => {
+  router.add("/exchange", async () => {
     // Display loader first
     let html = exchangeTemplate();
     el.html(html);
 
     try {
       // Load Symbols for Dropdown Menus
-      const response = await api.get('/symbols');
+      const response = await api.get("/symbols");
       const { symbols } = response.data;
 
       html = exchangeTemplate({ symbols });
       el.html(html);
-      $('.loading').removeClass('loading'); // kill loader animation
+      $(".loading").removeClass("loading"); // kill loader animation
       // Validate Form Inputs
-      $('.ui.form').form({
+      $(".ui.form").form({
         fields: {
-          from: 'empty',
-          to: 'empty',
-          amount: 'decimal',
-        },
+          from: "empty",
+          to: "empty",
+          amount: "decimal"
+        }
       });
-  
+
       // Specify Submit Handler
-      $('.submit').click(convertRatesHandler);
+      $(".submit").click(convertRatesHandler);
     } catch (error) {
       showError(error);
     }
-  })
-  /* jshint ignore:end */
-// ============================================================== //
-// ================ End Exchange Route ========================== //
-// ============================================================== //
-  
-// ============================================================== //
-// ========= vanilla-router Historical Route ==================== //
-// ============================================================== //
-  router.add("/historical", () => {
-    let html = historicalTemplate();
-    el.html(html);
   });
+  /* jshint ignore:end */
+  // ============================================================== //
+  // ================ End Exchange Route ========================== //
+  // ============================================================== //
+
+  // ============================================================== //
+  // ========= vanilla-router Historical Route ==================== //
+  // ============================================================== //
+  /* jshint ignore:start */
+  const getHistoricalRates = async () => {
+    const date = $("#date").val();
+    try {
+      const response = await api.post("/historical", { date });
+      const { base, rates } = response.data;
+      const html = ratesTemplate({ base, date, rates });
+
+      $("historical-table").html(html);
+    } catch (error) {
+      showError(error);
+    } finally {
+      $(".segment").removeClass("loading");
+    }
+  };
+
+  const historicalRatesHandler = () => {
+    if ($("ui.form").form("is valid")) {
+      // hide error message
+      $(".ui.error.message").hide();
+      // Indicate loading status
+      $(".segment").addClass("loading");
+      getHistoricalRates();
+      // Prevent page from submitting to server
+      return false;
+    }
+
+    return true;
+  };
+
+  router.add('/historical', () => {
+    // Display form
+    const html = historicalTemplate();
+    el.html(html);
+
+    // Activate Date Picker 
+    $('#calendar').calendar({
+      type: 'date',
+      formatter: { // format date to yyyy-mm-dd
+        date: date => new Date(date).toISOString().split('T')[0],
+
+      },
+    });
+
+    // Validate Data Input
+    $('.ui.form').form({
+      fields: {
+        date: 'empty',
+      },
+    });
+
+    $('.submit').click(historicalRatesHandler);
+  }); // end router.add
+  /* jshint ignore:end */
+  // ============================================================== //
+  // ========= End vanilla-router Historical Route ================ //
+  // ============================================================== //
+
   // =========================================================== //
   // ================ End vanilla-router Front-End Routes ====== //
   // =========================================================== //
+  // -------------------------------------------------------------------------- //
 
   // Navigate app to current url
   // This is at heart of how front-end routing works
