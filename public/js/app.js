@@ -56,11 +56,15 @@ window.addEventListener("load", () => {
   // =========================================================== //
   // ------------------------------------------------------------------------- //
 
-  /* === Display Latest Currency Rates Route ====================
+  // ============================================================== //
+  // ========= vanilla-router Base(/) Route ======================= //
+  // ============================================================== //
+
+  /* ----- Display Latest Currency Rates Route -------------------
    Get rates data from the localhost:3000/api/rates Express
   endpoint and pass it to the handlebars rates-template to display 
   the information. 
-  ============================================================= */
+  ------------------------------------------------------------- */
   /* jshint ignore:start */
   router.add("/", async () => {
     // Display loader Animation from SemanticUI first
@@ -82,11 +86,18 @@ window.addEventListener("load", () => {
     }
   });
   /* jshint ignore:end */
+  // ------------------------------------------------------------ //
+  // ----------- End vanilla-router Base Route ------------------ //
+  // ------------------------------------------------------------ //
 
-  // =============================================================== //
-  // =======  Helper functions for /exchange route ================= //
-  // Perform POST request, calculate and display conversion results //
-  // ============================================================== //
+  // =================================================================== //
+  // ========= vanilla-router Exchange Route =========================== //
+  // =================================================================== //
+
+  // --------------------------------------------------------------- //
+  // ------  Helper functions for /exchange route ------------------ //
+  //  Perform POST request, calculate and display conversion results //
+  // ----------------------------------------------------------------//
 
   /* jshint ignore:start */
   const getConversionResults = async () => {
@@ -120,13 +131,10 @@ window.addEventListener("load", () => {
       return false;
     }
   };
-  // ============================================================ //
-  // ========= End Helper Functions ============================= //
-  // ============================================================ //
+  // ----------------------------------------------------- //
+  // ----------- End Route Helper Functions -------------- //
+  // ----------------------------------------------------- //
 
-  // ============================================================ //
-  // ========= vanilla-router Exchange Route ==================== //
-  // ============================================================ //
   /* jshint ignore:start */
   router.add("/exchange", async () => {
     // Display loader first
@@ -157,13 +165,17 @@ window.addEventListener("load", () => {
     }
   });
   /* jshint ignore:end */
-  // ============================================================== //
-  // ================ End Exchange Route ========================== //
-  // ============================================================== //
+  // ---------------------------------------------------------------- //
+  // -----------End Exchange Route ---------------------------------- //
+  // ---------------------------------------------------------------- //
 
-  // ============================================================== //
-  // ========= vanilla-router Historical Route ==================== //
-  // ============================================================== //
+  // ================================================================ //
+  // ========= vanilla-router Historical Route ====================== //
+  // ================================================================ //
+
+  // ----------------------------------------------------- //
+  // ----------- Route Helper Functions ------------------ //
+  // ----------------------------------------------------- //
   /* jshint ignore:start */
   const getHistoricalRates = async () => {
     const date = $("#date").val();
@@ -172,7 +184,7 @@ window.addEventListener("load", () => {
       const { base, rates } = response.data;
       const html = ratesTemplate({ base, date, rates });
 
-      $("historical-table").html(html);
+      $("#historical-table").html(html);
     } catch (error) {
       showError(error);
     } finally {
@@ -193,38 +205,41 @@ window.addEventListener("load", () => {
 
     return true;
   };
+  // ----------------------------------------------------- //
+  // ----------- End Route Helper Functions -------------- //
+  // ----------------------------------------------------- //
 
-  router.add('/historical', () => {
+  router.add("/historical", () => {
     // Display form
     const html = historicalTemplate();
     el.html(html);
 
-    // Activate Date Picker 
-    $('#calendar').calendar({
-      type: 'date',
-      formatter: { // format date to yyyy-mm-dd
-        date: date => new Date(date).toISOString().split('T')[0],
-
-      },
+    // Activate Date Picker
+    $("#calendar").calendar({
+      type: "date",
+      formatter: {
+        // format date to yyyy-mm-dd
+        date: date => new Date(date).toISOString().split("T")[0]
+      }
     });
 
     // Validate Data Input
-    $('.ui.form').form({
+    $(".ui.form").form({
       fields: {
-        date: 'empty',
-      },
+        date: "empty"
+      }
     });
 
-    $('.submit').click(historicalRatesHandler);
+    $(".submit").click(historicalRatesHandler);
   }); // end router.add
   /* jshint ignore:end */
-  // ============================================================== //
-  // ========= End vanilla-router Historical Route ================ //
-  // ============================================================== //
+  // ----------------------------------------------------- //
+  // ----------- End Historical Route -------------------- //
+  // ----------------------------------------------------- //
 
-  // =========================================================== //
-  // ================ End vanilla-router Front-End Routes ====== //
-  // =========================================================== //
+  // ------------------------------------------------------------- //
+  // ----------- End vanilla-router Front End Routes ------------- //
+  // ------------------------------------------------------------- //
   // -------------------------------------------------------------------------- //
 
   // Navigate app to current url
