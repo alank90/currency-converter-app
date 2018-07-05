@@ -1,7 +1,7 @@
+// app.js front-end app running in browser
+
 window.addEventListener("load", () => {
   const el = $("#app");
-
-  // app.js front-end app running in browser
 
   // =========================================================== //
   // Compile Handlebar Templates
@@ -51,14 +51,14 @@ window.addEventListener("load", () => {
     el.html(html);
   };
 
-  // =========================================================== //
-  // ========= Front-End vanilla-router Routes ================= //
-  // =========================================================== //
-  // ------------------------------------------------------------------------- //
+  // ======================================================================== //
+  // ========= Front-End vanilla-router Routes ============================== //
+  // ======================================================================== //
+  // ------------------------------------------------------------------------ //
 
-  // ============================================================== //
-  // ========= vanilla-router Base(/) Route ======================= //
-  // ============================================================== //
+  // =================================================== //
+  // ========= vanilla-router Base(/) Route ============ //
+  // =================================================== //
 
   /* ----- Display Latest Currency Rates Route -------------------
    Get rates data from the localhost:3000/api/rates Express
@@ -68,7 +68,7 @@ window.addEventListener("load", () => {
   /* jshint ignore:start */
   router.add("/", async () => {
     // Display loader Animation from SemanticUI first
-    let html = ratesTemplate();
+    let html = ratesTemplate(); // Render the template with no values
     el.html(html);
     try {
       // Load Currency Rates from Express proxy via Axios client
@@ -90,9 +90,9 @@ window.addEventListener("load", () => {
   // ----------- End vanilla-router Base Route ------------------ //
   // ------------------------------------------------------------ //
 
-  // =================================================================== //
-  // ========= vanilla-router Exchange Route =========================== //
-  // =================================================================== //
+  // ============================================================== //
+  // ========= vanilla-router Exchange Route ====================== //
+  // ============================================================== //
 
   // --------------------------------------------------------------- //
   // ------  Helper functions for /exchange route ------------------ //
@@ -145,7 +145,7 @@ window.addEventListener("load", () => {
       // Load Symbols for Dropdown Menus
       const response = await api.get("/symbols");
       const { symbols } = response.data;
-
+      
       html = exchangeTemplate({ symbols });
       el.html(html);
       $(".loading").removeClass("loading"); // kill loader animation
@@ -231,7 +231,7 @@ window.addEventListener("load", () => {
     });
 
     $(".submit").click(historicalRatesHandler);
-  }); // end router.add
+  }); // end router.add /historical
   /* jshint ignore:end */
   // ----------------------------------------------------- //
   // ----------- End Historical Route -------------------- //
@@ -242,8 +242,10 @@ window.addEventListener("load", () => {
   // ------------------------------------------------------------- //
   // -------------------------------------------------------------------------- //
 
-  // Navigate app to current url
+  // Navigate app to current url. 
   // This is at heart of how front-end routing works
+  router.addUriListener(); // listens for address change. Enables use 
+  // of back/forward button
   router.navigateTo(window.location.pathname);
 
   // Highlight Active Menu on Refresh/Page Reload
